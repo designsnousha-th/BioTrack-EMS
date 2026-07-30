@@ -1,0 +1,300 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  SALES_MANAGER
+  SALES_EXECUTIVE
+  SERVICE_MANAGER
+  SERVICE_ENGINEER
+  ACCOUNTS
+  VIEWER
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+enum CallPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum CallStatus {
+  PENDING
+  ASSIGNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum AMCType {
+  FREE
+  PAID
+}
+
+enum PMStatus {
+  SCHEDULED
+  COMPLETED
+  MISSED
+  CANCELLED
+}
+
+enum QuotationStatus {
+  DRAFT
+  SENT
+  APPROVED
+  REJECTED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PARTIAL
+  PAID
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  email       String   @unique
+  name        String
+  password    String
+  role        Role
+  status      Status   @default(ACTIVE)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  assignedCalls ServiceCall[] @relation("AssignedEngineer")
+  createdCalls  ServiceCall[] @relation("CallCreator")
+  installations Installation[]
+  auditLogs     AuditLog[]
+  pmVisits      PreventiveMaintenance[]
+}
+
+model Customer {
+  id           Int      @id @default(autoincrement())
+  name         String
+  address      String
+  district     String
+  state        String
+  pin          String
+  gst          String?
+  logo         String?
+  status       Status   @default(ACTIVE)
+  tags         String[] @default([])
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  contacts      Contact[]
+  installations Installation[]
+  serviceCalls  ServiceCall[]
+  amcContracts  AMCContract[]
+  invoices      Invoice[]
+  quotations    Quotation[]
+}
+
+model Contact {
+  id          Int      @id @default(autoincrement())
+  customerId  Int
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  name        String
+  designation String
+  phone       String
+  email       String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Machine {
+  id           Int      @id @default(autoincrement())
+  company      String
+  category     String
+  name         String
+  model        String
+  serialNumber String   @unique
+  qrCode       String?
+  status       Status   @default(ACTIVE)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  installations Installation[]
+}
+
+model Installation {
+  id                 Int      @id @default(autoincrement())
+  customerId         Int
+  customer           Customer @relation(fields: [customerId], references: [id])
+  machineId          Int
+  machine            Machine  @relation(fields: [machineId], references: [id])
+  warrantyCardNumber String?
+  installationDate   DateTime
+  warrantyYears      Int      @default(1)
+  warrantyEndDate    DateTime
+  pmIntervalMonths   Int      @default(3)
+  engineerId         Int?
+  engineer           User?    @relation(fields: [engineerId], references: [id])
+  invoiceNumber      String?
+  customerPo         String?
+  reportFile         String?
+  invoiceFile        String?
+  poFile             String?
+  qrCode             String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  amcContracts AMCContract[]
+  serviceCalls ServiceCall[]
+  pms          PreventiveMaintenance[]
+}
+
+model AMCContract {
+  id             Int          @id @default(autoincrement())
+  customerId     Int
+  customer       Customer     @relation(fields: [customerId], references: [id])
+  installationId Int
+  installation   Installation @relation(fields: [installationId], references: [id])
+  contractNumber String       @unique
+  type           AMCType
+  value          Float
+  startDate      DateTime
+  endDate        DateTime
+  contractFile   String?
+  status         Status       @default(ACTIVE)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model ServiceCall {
+  id                 Int          @id @default(autoincrement())
+  callNumber         String       @unique
+  customerId         Int
+  customer           Customer     @relation(fields: [customerId], references: [id])
+  installationId     Int
+  installation       Installation @relation(fields: [installationId], references: [id])
+  reportedProblem    String
+  observation        String?
+  assignedEngineerId Int?
+  assignedEngineer   User?        @relation("AssignedEngineer", fields: [assignedEngineerId], references: [id])
+  priority           CallPriority @default(MEDIUM)
+  status             CallStatus   @default(PENDING)
+  remarks            String?
+  laborCharge        Float        @default(0)
+  travelCharge       Float        @default(0)
+  customerSignature  String?
+  attachments        String[]     @default([])
+  photos             String[]     @default([])
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  creatorId          Int?
+  creator            User?        @relation("CallCreator", fields: [creatorId], references: [id])
+
+  partsUsed          PartsUsed[]
+  invoices           Invoice[]
+  quotations         Quotation[]
+}
+
+model SparePart {
+  id            Int      @id @default(autoincrement())
+  partNumber    String   @unique
+  name          String
+  supplier      String?
+  stock         Int      @default(0)
+  minStockLevel Int      @default(5)
+  unitCost      Float    @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  partsUsed     PartsUsed[]
+}
+
+model PartsUsed {
+  id            Int         @id @default(autoincrement())
+  serviceCallId Int
+  serviceCall   ServiceCall @relation(fields: [serviceCallId], references: [id], onDelete: Cascade)
+  sparePartId   Int
+  sparePart     SparePart   @relation(fields: [sparePartId], references: [id])
+  quantity      Int
+  unitPrice     Float
+  createdAt     DateTime    @default(now())
+}
+
+model PreventiveMaintenance {
+  id             Int          @id @default(autoincrement())
+  installationId Int
+  installation   Installation @relation(fields: [installationId], references: [id], onDelete: Cascade)
+  scheduledDate  DateTime
+  actualDate     DateTime?
+  status         PMStatus     @default(SCHEDULED)
+  checklistReport String?
+  engineerId     Int?
+  engineer       User?        @relation(fields: [engineerId], references: [id])
+  signature      String?
+  photos         String[]     @default([])
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model Quotation {
+  id              Int             @id @default(autoincrement())
+  quotationNumber String          @unique
+  customerId      Int
+  customer        Customer        @relation(fields: [customerId], references: [id])
+  serviceCallId   Int?
+  serviceCall     ServiceCall?    @relation(fields: [serviceCallId], references: [id])
+  amount          Float
+  taxAmount       Float
+  totalAmount     Float
+  status          QuotationStatus @default(DRAFT)
+  pdfFile         String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+model Invoice {
+  id            Int           @id @default(autoincrement())
+  invoiceNumber String        @unique
+  customerId    Int
+  customer      Customer      @relation(fields: [customerId], references: [id])
+  serviceCallId Int?
+  serviceCall   ServiceCall?  @relation(fields: [serviceCallId], references: [id])
+  amount        Float
+  taxAmount     Float
+  totalAmount   Float
+  paymentStatus PaymentStatus @default(UNPAID)
+  paymentDate   DateTime?
+  pdfFile       String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    String
+  module    String
+  details   String?
+  ipAddress String?
+  createdAt DateTime @default(now())
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  type      String?
+  createdAt DateTime @default(now())
+}
