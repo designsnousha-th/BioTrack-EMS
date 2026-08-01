@@ -1,16 +1,24 @@
 # Dependencies
-**/node_modules/
+node_modules/
 
-# Build output
-**/dist/
+# Build
+dist/
+build/
+.next/
 
-# Environment files
+# Environment
 .env
-**/.env
+.env.*
 
 # Logs
 *.log
 
-# OS files
+# OS
 .DS_Store
 Thumbs.db
+
+# VS Code
+.vscode/
+
+# Coverage
+coverage/
