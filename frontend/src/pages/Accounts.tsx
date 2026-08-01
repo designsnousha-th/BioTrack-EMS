@@ -125,7 +125,7 @@ export const Accounts: React.FC = () => {
 
   const handleOpenPdf = (fileUrl: string) => {
     // Open in new tab for static PDF serving
-    window.open(`http://localhost:3000${fileUrl}`, '_blank');
+    window.open(`${import.meta.env.VITE_API_URL}${fileUrl}`, '_blank');
   };
 
   return (
