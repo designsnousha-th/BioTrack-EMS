@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   postgres:
-    image: postgres:18-alpine
+    image: postgres:16-alpine
     container_name: biotrack_postgres
     restart: always
     environment:
@@ -13,8 +13,8 @@ services:
       test: ["CMD-SHELL", "pg_isready -U postgres -d biotrack_ems"]
       interval: 5s
       timeout: 5s
-      retries: 5
-      start_period: 20s
+      retries: 10
+      start_period: 30s
     volumes:
       - pgdata:/var/lib/postgresql/data
 
