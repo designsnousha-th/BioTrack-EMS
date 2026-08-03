@@ -15,6 +15,8 @@ import PMCalendar from './pages/PMCalendar';
 import Inventory from './pages/Inventory';
 import Accounts from './pages/Accounts';
 import Settings from './pages/Settings';
+import { Equipment } from './pages/Equipment';
+import { DailyReports } from './pages/DailyReports';
 
 const queryClient = new QueryClient();
 
@@ -65,6 +67,14 @@ export default function App() {
               }
             />
             <Route
+              path="/equipment"
+              element={
+                <ProtectedRoute roles={['SUPER_ADMIN', 'ADMIN', 'SALES_MANAGER', 'SERVICE_MANAGER', 'VIEWER']}>
+                  <Equipment />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/installations"
               element={
                 <ProtectedRoute roles={['SUPER_ADMIN', 'ADMIN', 'SALES_MANAGER', 'SALES_EXECUTIVE', 'SERVICE_MANAGER', 'SERVICE_ENGINEER', 'VIEWER']}>
@@ -109,6 +119,14 @@ export default function App() {
               element={
                 <ProtectedRoute roles={['SUPER_ADMIN', 'ADMIN']}>
                   <Settings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/daily-reports"
+              element={
+                <ProtectedRoute>
+                  <DailyReports />
                 </ProtectedRoute>
               }
             />

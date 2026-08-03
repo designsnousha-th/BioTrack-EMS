@@ -34,7 +34,9 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const menuItems = [
     { name: 'Dashboard', path: '/', icon: LayoutDashboard, roles: ['SUPER_ADMIN', 'ADMIN', 'SALES_MANAGER', 'SALES_EXECUTIVE', 'SERVICE_MANAGER', 'SERVICE_ENGINEER', 'ACCOUNTS', 'VIEWER'] },
+    { name: 'Equipment Catalog', path: '/equipment', icon: Activity, roles: ['SUPER_ADMIN', 'ADMIN', 'SALES_MANAGER', 'SERVICE_MANAGER', 'VIEWER'] },
     { name: 'Customers', path: '/customers', icon: Users, roles: ['SUPER_ADMIN', 'ADMIN', 'SALES_MANAGER', 'SALES_EXECUTIVE', 'SERVICE_MANAGER', 'VIEWER'] },
+    { name: 'Daily Reports', path: '/daily-reports', icon: FileText, roles: ['SUPER_ADMIN', 'ADMIN', 'SALES_MANAGER', 'SALES_EXECUTIVE', 'SERVICE_MANAGER', 'SERVICE_ENGINEER', 'ACCOUNTS', 'VIEWER'] },
     { name: 'Installations', path: '/installations', icon: Compass, roles: ['SUPER_ADMIN', 'ADMIN', 'SALES_MANAGER', 'SALES_EXECUTIVE', 'SERVICE_MANAGER', 'SERVICE_ENGINEER', 'VIEWER'] },
     { name: 'Service Calls', path: '/service-calls', icon: Wrench, roles: ['SUPER_ADMIN', 'ADMIN', 'SERVICE_MANAGER', 'SERVICE_ENGINEER', 'VIEWER'] },
     { name: 'PM Schedule', path: '/preventive-maintenance', icon: Calendar, roles: ['SUPER_ADMIN', 'ADMIN', 'SERVICE_MANAGER', 'SERVICE_ENGINEER', 'VIEWER'] },

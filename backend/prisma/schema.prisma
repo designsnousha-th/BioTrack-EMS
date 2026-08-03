@@ -79,6 +79,8 @@ model User {
   installations Installation[]
   auditLogs     AuditLog[]
   pmVisits      PreventiveMaintenance[]
+  dailyReports    DailyReport[]           @relation("ReportAuthor")
+  reviewedReports DailyReport[]           @relation("ReportReviewer")
 }
 
 model Customer {
@@ -297,4 +299,23 @@ model Notification {
   isRead    Boolean  @default(false)
   type      String?
   createdAt DateTime @default(now())
+}
+
+model DailyReport {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  user          User     @relation("ReportAuthor", fields: [userId], references: [id])
+  date          DateTime @default(now())
+  workCompleted String
+  problems      String?
+  tomorrowPlan  String
+  hospitalVisits Json     @default("[]")
+  meetings      Json     @default("[]")
+  calls         Json     @default("[]")
+  status        String   @default("PENDING") // PENDING, REVIEWED
+  reviewRemarks String?
+  reviewedById  Int?
+  reviewedBy    User?    @relation("ReportReviewer", fields: [reviewedById], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }

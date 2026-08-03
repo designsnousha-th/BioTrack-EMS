@@ -10,6 +10,7 @@ import { ServiceCallsModule } from './service-calls/service-calls.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { AccountsModule } from './accounts/accounts.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { DailyReportsModule } from './daily-reports/daily-reports.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
     InventoryModule,
     AccountsModule,
     DashboardModule,
+    DailyReportsModule,
   ],
 })
 export class AppModule {}
